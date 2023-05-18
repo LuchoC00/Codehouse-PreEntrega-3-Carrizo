@@ -24,32 +24,38 @@ const tallesPermitidosCalzado = [4,5,6,7,8,9,10,11,12];
 //Crea varios objetos Vestimenta segun los parametros dados
 function crearVestimenta(nombre,precio,esImportado,tipo,cantidad){
     const tallesTipo = tipo != "calzado".toLowerCase() ? tallesPermitidos : tallesPermitidosCalzado;
-    const array = Array.from({ length: cantidad }, () => new Vestimenta(id++,nombre,precio, tallesTipo[Math.floor(Math.random()*tallesTipo.length)],esImportado,tipo));
+    const array = Array.from({ length: cantidad }, () => 
+    new Vestimenta(id++,nombre,precio, tallesTipo[Math.floor(Math.random()*tallesTipo.length)],esImportado,tipo));
     
     // busca a que tipo pertenece y despues agrega a la caja correspondiente o crea una si es necesario
+
     if(tipo == "remera".toLowerCase()){
         const pos = remeras.findIndex((rem) => rem != null && rem.nombreProducto == nombre.toLowerCase());
         pos!=-1 ? remeras[pos].agregarProducto(...array) : remeras.push(new Caja(tipo,nombre,array,cantidad));
+        if(cantidad == 1){
+            carrito.agregarCarrito(array[0]);
+        }
     }
     else if(tipo == "abrigo"){
         const pos = abrigos.findIndex((rem) => rem != null && rem.nombreProducto == nombre.toLowerCase());
         pos!=-1 ? abrigos[pos].agregarProducto(...array) : abrigos.push(new Caja(tipo,nombre,array,cantidad));
+        if(cantidad == 1){
+            carrito.agregarCarrito(array[0]);
+        }
     }
     else{
         const pos = calzados.findIndex((rem) => rem != null && rem.nombreProducto == nombre.toLowerCase());
         pos!=-1 ? calzados[pos].agregarProducto(...array) : calzados.push(new Caja(tipo,nombre,array,cantidad));
+        if(cantidad == 1){
+            carrito.agregarCarrito(array[0]);
+        }
     }
+
+    
 }
 
 
-//recuperar stock
-
-for (let i = 0; i < localStorage.length; i++) {
-    if(localStorage.key(i).startsWith("producto-")){
-        let {nombre, precio, esImportado, tipo} = JSON.parse(localStorage.getItem(localStorage.key(i)));
-        crearVestimenta(nombre,precio,esImportado,tipo,1)
-    }
-}
+//crear stock
 
 crearVestimenta("Paris is german", 28, true, "remera",7);
 crearVestimenta("Barcelona fc naek", 32, true, "remera",7);
@@ -69,17 +75,87 @@ crearVestimenta("linea 90", 54, true, "calzado",9);
 crearVestimenta("linea 81", 71, false, "calzado",7);
 crearVestimenta("modelo 48", 62, false, "calzado",7);
 
-
-/* 
-    |---->Main<----|
-*/
+//recuperar stock
 
 const carrito = new Carrito(stock);
+
+for (let i = 0; i < localStorage.length; i++) {
+    if(localStorage.key(i).startsWith("producto-")){
+        let {nombre, precio, esImportado, tipo} = JSON.parse(localStorage.getItem(localStorage.key(i)));
+        crearVestimenta(nombre,precio,esImportado,tipo,1)
+    }
+}
+
+//Mostrar carrito
+let carritoIcon = document.getElementById("carritoIcon");
+let fondoNubloso = document.getElementById("fondoNubloso");
+let carritoDiv = document.getElementById("carrito");
+let comprasDiv = document.getElementById("compras");
+
+let carritoVacioImagen = document.createElement("img");
+let contenedorImagen = document.createElement("div")
+
+//click en el carrito del header
+carritoIcon.addEventListener("click", () =>{
+    carritoDiv.style.zIndex = 1001;
+    fondoNubloso.style.zIndex = 1000;
+
+    //mostrar productos del carrito
+    carrito.compras.forEach(producto => {
+
+        let productoDiv = document.createElement("div");
+        productoDiv.style.width = "70%"
+        productoDiv.style.border = "3px solid blue"
+        productoDiv.style.borderRadius = "5px"
+
+        let productoContenido = document.createElement("p");
+        productoContenido.textContent = "nombre : "+producto.nombre + "\n talle : "+producto.talle + "\n precio : " + producto.precio;
+        productoDiv.appendChild(productoContenido);
+        comprasDiv.appendChild(productoDiv);
+    });
+    //si el carrito esta vacio se muestra lo siguiente
+    if(carrito.compras.length == 0){
+        carritoVacioImagen.src = "../assets/images/carritoVacio.png";
+        carritoVacioImagen.alt = "No hay productos en el carrito";
+        carritoVacioImagen.style.marginLeft = "auto";
+        contenedorImagen.appendChild(carritoVacioImagen);
+        comprasDiv.appendChild(contenedorImagen);
+
+    }
+});
+
+//ocultar
+let btnVolver = document.getElementById("volverBtn");
+btnVolver.addEventListener("click", () =>{
+    carritoDiv.style.zIndex = -1;
+    fondoNubloso.style.zIndex = -1;
+
+    comprasDiv.innerHTML = ""; // elimina todo el contenido dentro
+    if(carritoVacioImagen.src != ""){ 
+        carritoVacioImagen.remove()
+    }   
+});
+
+//vaciar carrito
+let btnVaciarCarrito = document.getElementById("vaciarCarritoBtn");
+btnVaciarCarrito.addEventListener("click", () =>{
+    carrito.compras = [];
+    localStorage.clear();
+    comprasDiv.innerHTML = ""; // elimina todo el contenido dentro
+    //vuelve a mostrar el carrito vacio
+    carritoVacioImagen.src = "../assets/images/carritoVacio.png";
+    carritoVacioImagen.alt = "No hay productos en el carrito";
+    carritoVacioImagen.style.marginLeft = "auto";
+    contenedorImagen.appendChild(carritoVacioImagen);
+    comprasDiv.appendChild(contenedorImagen);
+});
+
+
 
 //recorrer
 
 let targetas = document.getElementsByClassName("tarjeta");
-Array.from(targetas).forEach((targeta) => {
+Array.from(targetas).forEach((targeta) => {     
     targeta.querySelector(".nuevoVentas").id = targeta.querySelector("div h5").textContent.toLowerCase()
 });
 
@@ -88,7 +164,7 @@ stock.cajas.forEach(element => {
         let div = document.getElementById(caja.nombreProducto);
         if(div != null){
             if(caja.stock < 1){
-                console.log("Error linea 95")
+                console.log("Error linea 114")
             }
             else{
                 let select = div.querySelector("div select");
@@ -114,7 +190,7 @@ stock.cajas.forEach(element => {
                 boton.addEventListener("click", () => {
                     if(select.selectedIndex != 0){
                         let producto = caja.dameVestimetaPorTalle(select.options[select.selectedIndex].textContent)
-                        if(caja.darStockProducto(producto)>0){
+                        if(caja.darStockProducto(producto)>0){  //agregar a carrito
                             carrito.agregarCarrito(producto,1);
                             let confirmacion = document.getElementById("confirmacion");
                             
@@ -124,7 +200,7 @@ stock.cajas.forEach(element => {
                             setTimeout(() => {
                                 confirmacion.style.display = "none";
                             }, 3000);
-                            localStorage.setItem("producto-"+producto.id+"-"+producto.nombre, JSON.stringify(producto))
+                            localStorage.setItem("producto-"+producto.id+"-"+producto.nombre, JSON.stringify(producto)) //simulacion de producto por id
                         }
                     }
                 });
@@ -132,6 +208,8 @@ stock.cajas.forEach(element => {
         }
     });
 });
+
+
 
 //marcar agotados
 
