@@ -1,5 +1,8 @@
 # Codehouse-PreEntrega-3-Carrizo
 
+Se corrigio lo pedido.
+
+
 Con respecto a la pagina estatica, se ha añadido lo siguiente para la preentrega:
 
 4 clases:
