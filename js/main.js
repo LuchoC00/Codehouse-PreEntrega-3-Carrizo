@@ -105,11 +105,12 @@ carritoIcon.addEventListener("click", () =>{
 
         let productoDiv = document.createElement("div");
         productoDiv.style.width = "70%"
-        productoDiv.style.border = "3px solid blue"
-        productoDiv.style.borderRadius = "5px"
+        productoDiv.style.border = "3px solid"
+        productoDiv.style.borderRadius = "2px"
+        productoDiv.style.margin = "5px"
 
         let productoContenido = document.createElement("p");
-        productoContenido.textContent = "nombre : "+producto.nombre + "\n talle : "+producto.talle + "\n precio : " + producto.precio;
+        productoContenido.textContent = "nombre : "+producto.nombre + " |-| talle : "+producto.talle + " |-| precio : " + producto.precio;
         productoDiv.appendChild(productoContenido);
         comprasDiv.appendChild(productoDiv);
     });
@@ -150,6 +151,21 @@ btnVaciarCarrito.addEventListener("click", () =>{
     comprasDiv.appendChild(contenedorImagen);
 });
 
+//comprar
+let btnComprar = document.getElementById("comprarBtn");
+btnComprar.addEventListener("click", () =>{
+    if(carrito.compras.length > 0){
+        carrito.compras = [];
+        localStorage.clear();
+        comprasDiv.innerHTML = ""; // elimina todo el contenido dentro
+        //muestra un mensaje de confirmacion de compra
+        carritoVacioImagen.src = "../assets/images/gracias.jpg";
+        carritoVacioImagen.alt = "Gracias por comprar";
+        carritoVacioImagen.style.marginLeft = "auto";
+        contenedorImagen.appendChild(carritoVacioImagen);
+        comprasDiv.appendChild(contenedorImagen);
+    }
+});
 
 
 //recorrer

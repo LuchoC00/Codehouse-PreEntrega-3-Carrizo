@@ -43,7 +43,7 @@ class Caja{
 
     dameVestimetaPorTalle(talle){
         for (let i = 0; i < this.productos.length; i++) {
-            if(this.productos[i].talle == talle){
+            if(this.productos[i].talle == talle.toLowerCase()){
                 return this.productos[i];
             }
         }
